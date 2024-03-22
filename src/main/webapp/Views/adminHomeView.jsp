@@ -21,6 +21,8 @@
 		</form>
 		<div style="margin-bottom: 10px;">
 			<form method="post" action="adminHome">
+			<input value="${keyword }" name="keyword" hidden/>
+			<input value="${currentPage }" name="page" hidden/>
 				<b>Lọc theo ngày bán: </b> Từ ngày &nbsp; <input type="date"
 					value="${fromDate }" required="required" name="fromDate" />&nbsp;&nbsp;
 				tới &nbsp; <input type="date" value="${toDate }" required="required"
@@ -63,6 +65,52 @@
 				</tr>
 			</c:forEach>
 		</table>
+		<c:if test="${empty keyword }">
+			<div style="margin-top: 5px">
+				<!-- link previous chỉ xuất hiện khi trang hiện tại lớn hơn 1 -->
+				<c:if test="${currentPage gt 1 }">
+					<a href="adminHome?page=${currentPage - 1} ">Previous</a> &nbsp;
+				</c:if>
+				<c:forEach begin="1" end="${noOfPages }" var="i">
+					<c:choose>
+						<c:when test="${currentPage eq i}"> <!-- Trùng lặp trang hiện tại thì không tạo link -->
+							&nbsp;${i}&nbsp;
+						</c:when>
+						<c:otherwise>
+							&nbsp;<a href="adminHome?page=${i}">${i}</a>&nbsp;
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+
+				<!-- Link Next chỉ xuất hiện khi trang hiện tại nhỏ hơn tổng số trang -->
+				<c:if test="${currentPage lt noOfPages }">
+					&nbsp;<a href="adminHome?page=${currentPage + 1}">Next</a>
+				</c:if>
+			</div>
+		</c:if>
+
+		<!-- có hoạt động tìm kiếm, thêm tham số keyword -->
+		<c:if test="${not empty keyword }">
+			<div style="margin-top: 5px">
+				<c:if test="${currentPage gt 1}">
+					<a href="adminHome?page=${currentPage - 1}&keyword=${keyword}">Previous</a>&nbsp;
+				</c:if>
+				<c:forEach begin="1" end="${noOfPages }" var="i">
+					<c:choose>
+						<c:when test="${currentPage eq i}">
+							&nbsp;${i}&nbsp;
+						</c:when>
+						<c:otherwise>
+							&nbsp;<a href="adminHome?page=${i}&keyword=${keyword}">${i}</a>&nbsp;
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+				<c:if test="${currentPage lt noOfPages }">
+					&nbsp;<a
+						href="adminHome?page=${currentPage + 1}&keyword=${keyword}">Next</a>
+				</c:if>
+			</div>
+		</c:if>
 		<br>
 		<sup>(* Cột số lượng bán: Mặc định hiển thị số sách bán trong 12 tháng cho đến ngày hiện tại *)</sup>
 		

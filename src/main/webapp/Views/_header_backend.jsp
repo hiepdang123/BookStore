@@ -5,7 +5,8 @@
 	src="${pageContext.request.contextPath}/js/bookstore_script.js"></script>
 <script
 	src="https://cdn.ckeditor.com/ckeditor5/35.2.1/classic/ckeditor.js"></script>
-
+<link href="${pageContext.request.contextPath}/css/bookstore_style.css"
+	rel="stylesheet" />
 <div style="background: #E0E0E0; height: 75px; padding: 15px">
 	<div style="float: left">
 		<h2>Website Cửa hàng Sách với JSP/Servlet</h2>

@@ -30,56 +30,78 @@ public class AdminHomeServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String errors = null;
-		List<Book> list = bookDAO.listAllBooks();
-		String keyword = request.getParameter("keyword");
-		Date today = new Date();
-		Date todaySubtract12Month = MyUtil.subtractFromDate(12, today);
-		String todaySubtract12MonthStr = MyUtil.convertDateToString(todaySubtract12Month);
-		String todayStr = MyUtil.convertDateToString(today);
-		if (keyword != null && !keyword.isEmpty()) {
-			list = bookDAO.listAllBooks(keyword, todaySubtract12MonthStr, todayStr);
-		} else {
-			list = bookDAO.listAllBooks(todaySubtract12MonthStr, todayStr);
+		List<Book> list = null;
+		String fromDate = null;
+		String toDate = null;
+		int page = 1;
+		int recordsPerPage = 2;
+		if (request.getParameter("page") != null) {
+			page = Integer.parseInt(request.getParameter("page"));
 		}
+
+		String keyword = request.getParameter("keyword");
+		
+		list = bookDAO.listAllBooks((page - 1) * recordsPerPage, recordsPerPage, keyword);
+		int noOfRecords = bookDAO.getNoOfRecords(keyword);
+		int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / recordsPerPage);
+		
+		String fromDateParam = request.getParameter("fromDate");
+		String toDateParam = request.getParameter("toDate");
+		if (validateDate(fromDateParam, toDateParam)) {
+			fromDate = MyUtil.attachTailToDate(fromDateParam);
+			toDate = MyUtil.attachTailToDate(toDateParam);
+		}else {
+			Date today = new Date();
+			Date todaySubtract12Month = MyUtil.subtractFromDate(12, today);
+			fromDate = MyUtil.convertDateToString(todaySubtract12Month);
+			toDate = MyUtil.convertDateToString(today);
+		}
+		
+		list = bookDAO.listAllBooks((page - 1) * recordsPerPage, recordsPerPage, keyword,fromDate,toDate);
 		if (list.isEmpty()) {
 			errors = "Không có cuốn sách nào";
 		}
-
+		
 		request.setAttribute("errors", errors);
 		request.setAttribute("turnover", calSumOfMoney(list));
 		request.setAttribute("bookList", list);
+		request.setAttribute("noOfPages", noOfPages);
+		request.setAttribute("currentPage", page);
 		request.setAttribute("keyword", keyword);
+		request.setAttribute("fromDate", fromDate);
+		request.setAttribute("toDate", toDate);
 		RequestDispatcher rd = this.getServletContext().getRequestDispatcher("/Views/adminHomeView.jsp");
 		rd.forward(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String errors = null;
-		String forwardPage;
-		List<Book> list = null;
-
-		String fromDateParam = request.getParameter("fromDate");
-		String toDateParam = request.getParameter("toDate");
-		if (validateDate(fromDateParam, toDateParam)) {
-			String fromDate = MyUtil.attachTailToDate(fromDateParam);
-			String toDate = MyUtil.attachTailToDate(toDateParam);
-			list = bookDAO.listAllBooks(fromDate, toDate);
-			if (list.isEmpty()) {
-				errors = "Không có cuốn sách nào";
-			}
-
-			request.setAttribute("errors", errors);
-			request.setAttribute("fromDate", fromDateParam);
-			request.setAttribute("toDate", toDateParam);
-			request.setAttribute("turnover", calSumOfMoney(list));
-			request.setAttribute("bookList", list);
-			forwardPage = "/Views/adminHomeView.jsp";
-		} else {
-			forwardPage = "adminHome";
-		}
-		RequestDispatcher rd = this.getServletContext().getRequestDispatcher(forwardPage);
-		rd.forward(request, response);
+//		String errors = null;
+//		String forwardPage;
+//		List<Book> list = null;
+//
+//		String fromDateParam = request.getParameter("fromDate");
+//		String toDateParam = request.getParameter("toDate");
+//		if (validateDate(fromDateParam, toDateParam)) {
+//			String fromDate = MyUtil.attachTailToDate(fromDateParam);
+//			String toDate = MyUtil.attachTailToDate(toDateParam);
+//			list = bookDAO.listAllBooks(fromDate, toDate);
+//			if (list.isEmpty()) {
+//				errors = "Không có cuốn sách nào";
+//			}
+//
+//			request.setAttribute("errors", errors);
+//			request.setAttribute("fromDate", fromDateParam);
+//			request.setAttribute("toDate", toDateParam);
+//			request.setAttribute("turnover", calSumOfMoney(list));
+//			request.setAttribute("bookList", list);
+//			forwardPage = "/Views/adminHomeView.jsp";
+//		} else {
+//			forwardPage = "adminHome";
+//		}
+//		RequestDispatcher rd = this.getServletContext().getRequestDispatcher(forwardPage);
+//		rd.forward(request, response);
+		doGet(request, response);
 	}
 
 	private boolean validateDate(String fromDate, String toDate) {

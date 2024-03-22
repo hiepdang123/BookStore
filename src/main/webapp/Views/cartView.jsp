@@ -70,6 +70,7 @@
 		<p style="color: red;">${errors}</p>
 		<form action="${pageContext.request.contextPath }/order" method="post"
 			enctype="multipart/form-data">
+			<input value="${cartOfCustomer.totalCost }" name="amount" hidden>
 			<table border="1">
 				<tr>
 					<th align="left">Tài khoản</th>
